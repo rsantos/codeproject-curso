@@ -4,6 +4,10 @@ namespace CodeProject\Providers;
 
 use CodeProject\Repositories\ClientRepository;
 use CodeProject\Repositories\ClientRepositoryEloquent;
+use CodeProject\Repositories\ProjectNoteRepository;
+use CodeProject\Repositories\ProjectNoteRepositoryEloquent;
+use CodeProject\Repositories\ProjectRepository;
+use CodeProject\Repositories\ProjectRepositoryEloquent;
 use Illuminate\Support\ServiceProvider;
 
 class CodeProjectRepositoryProvider extends ServiceProvider
@@ -26,5 +30,7 @@ class CodeProjectRepositoryProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(ClientRepository::class, ClientRepositoryEloquent::class);
+        $this->app->bind(ProjectRepository::class, ProjectRepositoryEloquent::class);
+        $this->app->bind(ProjectNoteRepository::class, ProjectNoteRepositoryEloquent::class);
     }
 }

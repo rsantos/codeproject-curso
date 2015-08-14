@@ -2,49 +2,33 @@
 
 namespace CodeProject\Http\Controllers;
 
-use CodeProject\Repositories\ClientRepository;
-use CodeProject\Services\ClientService;
+use CodeProject\Repositories\ProjectRepository;
+use CodeProject\Services\ProjectService;
 use Illuminate\Http\Request;
 
 
-class ClientController extends Controller
+class ProjectController extends Controller
 {
 
-    /**
-     * @var ClientRepository
-     */
     private $repository;
-    /**
-     * @var ClientServic
-     */
     private $service;
 
     /**
-     * @param ClientRepository $repository
-     * @param ClientService $service
+     * @param ProjectRepository $repository
+     * @param ProjectService $service
      */
-    public function __construct(ClientRepository $repository, ClientService $service)
+    public function __construct(ProjectRepository $repository, ProjectService $service)
     {
         $this->repository = $repository;
         $this->service = $service;
     }
 
-    /**
-     * Display a listing of the resource.
-     * @return Response
-     * @internal param ClientRepository $repository
-     */
     public function index()
     {
-        return $this->repository->all();
+        return $this->repository->with(['client', 'owner'])->all();
+//        return $this->repository->all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  Request  $request
-     * @return Response
-     */
     public function store(Request $request)
     {
         return $this->service->create($request->all());
