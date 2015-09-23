@@ -2,7 +2,9 @@
 
 namespace CodeProject\Services;
 
+use CodeProject\Repositories\ProjectMemberRepository;
 use CodeProject\Repositories\ProjectRepository;
+use CodeProject\Validators\ProjectMemberValidator;
 use CodeProject\Validators\ProjectValidator;
 use Prettus\Validator\Exceptions\ValidatorException;
 
@@ -10,11 +12,50 @@ class ProjectService
 {
 	protected $repository;
 	protected $validator;
+	/**
+	 * @var ProjectMemberRepository
+	 */
+	private $projectMemberRepository;
+	/**
+	 * @var ProjectMemberValidator
+	 */
+	private $projectMemberValidator;
 
-	public function __construct(ProjectRepository $repository, ProjectValidator $validator)
+	public function __construct(ProjectRepository $repository, ProjectValidator $validator, ProjectMemberRepository $projectMemberRepository, ProjectMemberValidator $projectMemberValidator)
 	{
 		$this->repository = $repository;
 		$this->validator = $validator;
+		$this->projectMemberRepository = $projectMemberRepository;
+		$this->projectMemberValidator = $projectMemberValidator;
+	}
+
+	public function addMember(array $data)
+	{
+		try {
+			$this->projectMemberValidator->with($data)->passesOrFail();
+			return $this->projectMemberRepository->create($data);
+		} catch(ValidatorException $e){
+			return [
+				'error' => true,
+				'message' => $e->getMessageBag()
+			];
+		}
+	}
+
+	public function removeMember($projectId, $userId)
+	{
+        $member = $this->projectMemberRepository->skipPresenter()->findWhere(['project_id' => $projectId, 'user_id' => $userId]);
+
+        return $this->projectMemberRepository->delete($member->id);
+	}
+
+	public function members($projectId){
+		return $this->projectMemberRepository->skipPresenter()->findWhere(['project_id' => $projectId]);
+	}
+
+	public function isMember($projectId, $userId)
+	{
+		return $this->repository->hasMember($projectId, $userId);
 	}
 
 	public function create(array $data)

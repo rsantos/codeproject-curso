@@ -5,10 +5,12 @@ namespace CodeProject\Http\Controllers;
 use CodeProject\Repositories\ProjectRepository;
 use CodeProject\Services\ProjectService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 
-class ProjectController extends Controller
+class ProjectFileController extends Controller
 {
 
     private $repository;
@@ -31,7 +33,10 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        return $this->service->create($request->all());
+        $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
+
+        Storage::put($request->name.".".$extension, File::get($file));
     }
 
     /**
@@ -47,15 +52,6 @@ class ProjectController extends Controller
             return ['error' => 'Access forbidden'];
         }
         return $this->repository->find($id);
-    }
-
-    public function members($id)
-    {
-        if($this->checkProjectPermissions($id) == false)
-        {
-            return ['error' => 'Access forbidden'];
-        }
-        return $this->service->members($id);
     }
 
     /**
